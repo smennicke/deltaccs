@@ -1,0 +1,37 @@
+--- Good-Low
+mod EXAMPLE is
+  inc DeltaCCS .
+  
+  var ADP : ActDProcess .
+  op Proc : -> DeltaCCSProcess .
+  op a : -> Act .
+
+  ops Simple Good Low High : -> Formula .
+  
+  
+  eq fm = True .
+  
+  eq context =  ('PC 	=def ('Dry | 'Off) \ 'noRain \ 'rain \ 'heavyRain ) &
+  				('Dry 	=def ~ 'noRain . 'Dry + 'little . 'Damp + 'heavy . 'Wet) &
+  				('Damp 	=def ~ 'rain . 'Damp + 'heavy . 'Wet + 'non . 'Dry) &
+  				('Wet	=def ~ 'heavyRain . 'Wet + 'little . 'Damp + 'non . 'Dry) &
+  				('Off 	=def 'mOn . 'Man + 'iOn . 'Auto) &
+  				('Man	=def ~ 'perm . 'Man + 'off . 'Off + 'iOn . 'Auto) &
+  				('Auto	=def 'noRain . 'Auto + 'rain . 'Slow + 'heavyRain . 'Fast) &
+  				('Slow	=def ~ 'slowWipe . 'Auto) &
+  				('Fast	=def ~ 'fastWipe . 'Auto) &
+  				('Damp1 =def ~ 'rain . 'Damp' + 'non . 'Dry) &
+  				('Wet1 	=def ( ~ 'nil . 0 | 'nil . 0 ) \ 'nil  )  &
+  				('Dry1	=def ~ 'noRain . 'Dry' + 'little . 'Damp) &
+  				('Dry2	=def ~ 'noRain . 'Dry'' + 'little . 'Damp + 'heavy . 'Damp) &
+  				('Auto1 =def 'noRain . 'Auto + 'rain . 'Slow + 'heavyRain . 'Slow) &
+  				('Fast1 =def ( ~ 'nil . 0 | 'nil . 0 ) \ 'nil  )  .
+  				
+  eq deltaSet = 	'd5 =ddef ('Auto, Low , 'Auto1) & 
+  					'd6 =ddef ('Fast, Low , 'Fast1) .
+ 
+  eq Proc = ( 'PC , deltaSet ) .	
+  
+  eq a = ~ 'slowWipe .					
+   
+endm

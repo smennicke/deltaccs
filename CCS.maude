@@ -1,0 +1,248 @@
+
+fmod CCS-SYNTAX is  inc QID .
+  sorts Label Act ProcessId Process .
+  subsorts Qid < Label < Act .
+  subsorts Qid < ProcessId < Process .
+  op ~_ : Label -> Label .
+  eq ~ ~ L:Label = L:Label .
+  op tau : -> Act .
+  op 0 : -> Process .                
+  op _._ : Act Process -> Process [frozen prec 25] . 
+  op _+_ : Process Process -> Process [frozen assoc comm prec 35] .
+  op _|_ : Process Process -> Process [frozen assoc comm prec 30] .
+  op _[_/_] : Process Label Label -> Process [frozen prec 20] .
+  op _\_ : Process Label -> Process [frozen prec 20] . 
+endfm
+
+fmod CCS-CONTEXT is
+  inc CCS-SYNTAX .
+  sorts Process? Context .
+  subsort Process < Process? .
+
+  op _=def_ : ProcessId Process -> Context [prec 40] .
+  op nil : -> Context .
+  op _&_ : Context Context -> Context
+              [assoc comm id: nil prec 42] .
+  op _definedIn_ : ProcessId Context -> Bool .
+  op def : ProcessId Context -> Process? .
+  op not-defined : -> Process? .
+
+  op context : -> Context .
+
+  vars X X' : ProcessId .
+  var P : Process .
+  vars C C' : Context .
+
+  eq X definedIn nil = false .
+  eq X definedIn (X' =def P & C') = (X == X') or (X definedIn C') .
+  eq def(X, nil) = not-defined .
+  eq def(X, (X' =def P) & C') = if X == X' then P 
+                                else def(X, C') fi .
+endfm
+
+--- CCS transitions
+mod CCS is
+  pr CCS-CONTEXT .
+  sorts ActProcess MachineInt .
+  subsort Process < ActProcess .
+  op {_}_ : Act ActProcess -> ActProcess [frozen] .
+     *** {A}P means that the process P has performed the action A
+  vars L M : Label .
+  vars A B : Act .
+  vars P P' Q Q' R : Process .
+  var X : ProcessId .
+  var AP : ActProcess .
+  var N : MachineInt .
+  
+  *** Prefix
+  rl A . P => {A}P .
+
+  *** Summation
+  crl P + Q => {A}P' if P => {A}P' .
+
+  *** Composition
+  crl P | Q => {A}(P' | Q) if P => {A}P' .
+  crl P | Q => {tau}(P' | Q') if P => {L}P' /\ Q => {~ L}Q' .
+
+  *** Restriction
+  crl P \ L => {A}(P' \ L) if P => {A}P'
+                           /\ A =/= L /\ A =/= ~ L .
+                         
+  *** Relabelling
+  crl P[M / L] => {M}(P'[M / L]) if P =>{L}P' .
+  crl P[M / L] => {~ M}(P'[M / L]) if P =>{~ L}P' .
+  crl P[M / L] => {A}(P'[M / L]) if P =>{A}P'
+                                 /\ A =/= L /\ A =/= ~ L .
+
+  *** Definition
+  crl X => {A}P if (X definedIn context) /\ def(X,context) => {A}P .
+
+  
+  *** reflexive, transitive closure
+  sort TProcess .
+  subsort TProcess < ActProcess .
+  op [_] : Process -> TProcess [frozen] .
+  
+  crl [ P ] => {A}Q if P => {A}Q .
+  crl [ P ] => {A}AP if P => {A}Q /\ [ Q ] => AP .
+
+                         
+  *** weak semantics
+  
+  sorts Act*Process OActProcess .
+ 
+  op {_}*_ : Act Process -> Act*Process [frozen] .
+  op {{_}}_ : Act Process -> OActProcess [frozen] .
+  
+  sort WProcess . 
+  subsorts WProcess < Act*Process OActProcess .
+  
+  op |_| : Process -> WProcess [frozen] .
+  op <_> : Process -> WProcess [frozen] .
+  
+  rl | P | => {tau}* P .
+  crl | P | => {tau}* R if P => {tau}Q /\ | Q | => {tau}* R .
+  
+  crl < P > => {{A}}P' if | P |  => {tau}* Q  /\
+                            Q    => {A}Q'     /\
+                          | Q' | => {tau}* P' .
+
+endm
+
+mod EXAMPLE is
+  inc CCS .
+  
+  eq context =  ('Proc =def 'a . 'b . 'Proc) &
+                ('Proc2   =def  'a . tau . 'Proc2 + tau . 'b . 'Proc2) & 
+                ('Ven    =def  '2p . 'VenB  +  '1p . 'VenL)  & 
+                ('VenB   =def  'big . 'collectB . 'Ven)    & 
+                ('VenL   =def  'little . 'collectL . 'Ven)   & 
+                ('Road   =def  'car . 'up . ~ 'ccross . ~ 'down . 'Road)  & 
+                ('Rail   =def  'train . 'green . ~ 'tcross . ~ 'red . 'Rail) & 
+                ('Signal =def  ~ 'green . 'red . 'Signal 
+                               + ~ 'up . 'down . 'Signal)  & 
+                ('Crossing =def (('Road | ('Rail | 'Signal)) 
+                                  \ 'green \ 'red \ 'up \ 'down ))  .
+
+endm
+
+mod Wiper-Variante1 is
+  inc CCS .
+  
+  eq context =  ('PC 	=def 'Dry | 'Off) &
+  				('Dry	=def ~ 'noRain . 'Dry + 'little . 'Damp + 'heavy . 'Damp) &
+  				('Damp	=def ~ 'rain . 'Damp + 'non . 'Dry) &
+  				('Off 	=def 'mOn . 'Man + 'iOn . 'Auto) &
+  				('Man	=def ~ 'perm . 'Man + 'off . 'Off + 'iOn . 'Auto) &
+  				('Auto	=def 'noRain . 'Auto + 'rain . 'Slow + 'heavyRain . 'Slow) &
+  				('Slow	=def ~ 'slowWipe . 'Auto) .
+  				
+  ---eq deltaSet = empty .
+  
+endm
+
+fmod SUCC is
+  inc META-LEVEL .
+  
+  op MOD : -> Module .  
+  eq MOD = ['Wiper-Variante1] .
+
+  sort TermSet .
+  subsort Term < TermSet .
+  op mt : -> TermSet .
+  op _++_ : TermSet TermSet -> TermSet [assoc comm id: mt] .
+  op _isIn_ : Term TermSet -> Bool .
+  op allOneStep : Term Nat Term -> TermSet .
+  op filter : Qid TermSet TermSet -> TermSet .
+  op succ : Term -> TermSet .
+  op succ : Term TermSet -> TermSet .
+  op wsucc : Term -> TermSet .
+  op wsucc : Term TermSet -> TermSet .
+  
+  var M : Module .
+  var F : Qid .
+  vars T T' X : Term .
+  var N : Nat .
+  vars TS TS' : TermSet .
+  
+  eq T isIn mt = false .
+  eq T isIn (T' ++ TS) = 
+     (getTerm(metaReduce(MOD, '_==_[T,T'])) == 'true.Bool) 
+     or (T isIn TS) .
+  
+  eq filter(F,mt, TS') = mt .
+  ceq filter(F, X ++ TS, TS') =
+      (if T isIn TS' then  T' else mt fi) ++ filter(F,TS,TS')
+      if F[T,T'] := X .
+     
+  eq allOneStep(T,N,X) = 
+  if metaSearch(MOD,T, X, nil, '+,1,N) == failure then mt
+  else  getTerm(metaSearch(MOD,T, X, nil, '+,1,N)) ++
+        allOneStep(T,N + 1,X) fi .
+  
+  eq succ(T) = allOneStep(T, 0, 'AP:ActProcess) .  
+  eq succ(T,TS) = filter(('`{_`}_),
+                  allOneStep(T,0,'AP:ActProcess),TS) .
+ 
+  eq wsucc(T) = allOneStep('<_>[T], 0, 'OAP:OActProcess) .
+  eq wsucc(T,TS) = filter(('`{`{_`}`}_),
+                   allOneStep('<_>[T],0,'OAP:OActProcess),TS) .
+   
+endfm
+
+
+fmod MODAL-LOGIC is
+  protecting SUCC .
+ 
+  sort HMFormula .
+  
+  ops tt ff : -> HMFormula .
+  ops _/\_  _\/_ : HMFormula HMFormula -> HMFormula .
+  ops <_>_ `[_`]_ : TermSet HMFormula -> HMFormula .
+  ops <<_>>_ `[`[_`]`]_ : TermSet HMFormula -> HMFormula .
+  
+  ops forall exists : TermSet HMFormula -> Bool .
+  
+  op _|=_ : Term HMFormula -> Bool .
+  
+  var P : Term .
+  var K PS : TermSet .
+  vars Phi Psi : HMFormula .
+
+  eq P |= tt = true .
+  eq P |= ff = false .
+  
+  eq P |= Phi /\ Psi = P |= Phi and P |= Psi .
+  
+  eq P |= Phi \/ Psi = P |= Phi or  P |= Psi .
+  
+  eq P |= [ K ] Phi = forall(succ(P, K), Phi) .
+  
+  eq P |= < K > Phi = exists(succ(P, K), Phi) .
+  
+  eq forall(mt, Phi) = true .
+  eq forall(P ++ PS, Phi) = P |= Phi and forall(PS, Phi) .
+  
+  eq exists(mt, Phi) = false .
+  eq exists(P ++ PS, Phi) = P |= Phi or exists(PS,Phi) .
+  
+  eq P |= [[ K ]] Phi = forall(wsucc(P, K), Phi) .
+  
+  eq P |= << K >> Phi = exists(wsucc(P, K), Phi) .
+  
+endfm
+
+ --- Beispiele aus EXAMPLE
+
+---red ''Ven.Qid |= [ ''1p.Act ++ ''2p.Act ]
+---                 [ ''big.Act ++ ''little.Act ] 
+---                 < ''collectB.Act ++ ''collectL.Act > tt . 
+
+--- Schranken Bsp
+---red ''Crossing.Qid |= (< ''car.Act > < ''train.Act > tt ) /\ (< ''train.Act > [ ''train.Act ] ff ) .
+                      
+---red ''Crossing.Qid |= [[ ''car.Act ]] [[ ''train.Act ]] ( (<< '~_[''ccross.Act] >> tt)  \/ (<< '~_[''tcross.Act] >> tt) ) .
+---red ''Crossing.Qid |= [[ ''car.Act ]] [[ ''train.Act ]] ( (<< '~_[''ccross.Act] >> tt)  /\ (<< '~_[''tcross.Act] >> tt) ) .
+
+--- Beispiele aus  Wiper-Variante1                           
+---red in MODAL-LOGIC : wsucc(''PC.Qid , ''heavy.Act) .                             

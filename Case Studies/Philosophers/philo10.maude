@@ -1,0 +1,34 @@
+mod EXAMPLE is inc DeltaCCS .
+op Proc : -> DeltaCCSProcess .
+
+
+eq context =  
+( 'Phil0 =def 'think . 'Phil0 + ~ 'up0 . ~ 'up1 . 'eat . ~ 'dn0 . ~ 'dn1 . 'Phil0 ) &
+( 'Fork0 =def 'up0 . 'dn0 . 'Fork0 ) &
+( 'Phil1 =def 'think . 'Phil1 + ~ 'up1 . ~ 'up2 . 'eat . ~ 'dn1 . ~ 'dn2 . 'Phil1 ) &
+( 'Fork1 =def 'up1 . 'dn1 . 'Fork1 ) &
+( 'Phil2 =def 'think . 'Phil2 + ~ 'up2 . ~ 'up3 . 'eat . ~ 'dn2 . ~ 'dn3 . 'Phil2 ) &
+( 'Fork2 =def 'up2 . 'dn2 . 'Fork2 ) &
+( 'Phil3 =def 'think . 'Phil3 + ~ 'up3 . ~ 'up4 . 'eat . ~ 'dn3 . ~ 'dn4 . 'Phil3 ) &
+( 'Fork3 =def 'up3 . 'dn3 . 'Fork3 ) &
+( 'Phil4 =def 'think . 'Phil4 + ~ 'up4 . ~ 'up5 . 'eat . ~ 'dn4 . ~ 'dn5 . 'Phil4 ) &
+( 'Fork4 =def 'up4 . 'dn4 . 'Fork4 ) &
+( 'Phil5 =def 'think . 'Phil5 + ~ 'up5 . ~ 'up6 . 'eat . ~ 'dn5 . ~ 'dn6 . 'Phil5 ) &
+( 'Fork5 =def 'up5 . 'dn5 . 'Fork5 ) &
+( 'Phil6 =def 'think . 'Phil6 + ~ 'up6 . ~ 'up7 . 'eat . ~ 'dn6 . ~ 'dn7 . 'Phil6 ) &
+( 'Fork6 =def 'up6 . 'dn6 . 'Fork6 ) &
+( 'Phil7 =def 'think . 'Phil7 + ~ 'up7 . ~ 'up8 . 'eat . ~ 'dn7 . ~ 'dn8 . 'Phil7 ) &
+( 'Fork7 =def 'up7 . 'dn7 . 'Fork7 ) &
+( 'Phil8 =def 'think . 'Phil8 + ~ 'up8 . ~ 'up9 . 'eat . ~ 'dn8 . ~ 'dn9 . 'Phil8 ) &
+( 'Fork8 =def 'up8 . 'dn8 . 'Fork8 ) &
+( 'Phil9 =def 'think . 'Phil9 + ~ 'up9 . ~ 'up0 . 'eat . ~ 'dn9 . ~ 'dn0 . 'Phil9 ) &
+( 'Fork9 =def 'up9 . 'dn9 . 'Fork9 ) .
+
+eq deltaSet = empty .
+
+eq Proc = ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( ( 'Phil0 | 'Fork0 ) | 'Phil1 ) | 'Fork1 ) | 'Phil2 ) | 'Fork2 ) | 'Phil3 ) | 'Fork3 ) | 'Phil4 ) | 'Fork4 ) | 'Phil5 ) | 'Fork5 ) | 'Phil6 ) | 'Fork6 ) | 'Phil7 ) | 'Fork7 ) | 'Phil8 ) | 'Fork8 ) | 'Phil9 ) | 'Fork9 ) \ 'up0 \ 'dn0 \ 'up1 \ 'dn1 \ 'up2 \ 'dn2 \ 'up3 \ 'dn3 \ 'up4 \ 'dn4 \ 'up5 \ 'dn5 \ 'up6 \ 'dn6 \ 'up7 \ 'dn7 \ 'up8 \ 'dn8 \ 'up9 \ 'dn9), empty ) .
+
+endm
+
+
+red in mu-calculus : {} {} 'Proc.DeltaCCSProcess |= Nu X [-]X /\ <-># SVA # SVA .

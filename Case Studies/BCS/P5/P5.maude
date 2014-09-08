@@ -1,0 +1,87 @@
+mod EXAMPLE is inc DeltaCCS .
+
+op Proc : -> DeltaCCSProcess .
+ops  CentralLockingSystem AutomaticLocking AutomaticPowerWindow SafetyFunction ControlAutomaticPowerWindow RemoteControlKey : -> Formula .
+
+eq fm = True . 
+
+eq context =  ( 'DAddAutoPWCLS%PW_dn =def ~ 'pw_but_up . 'PW_move_up + ~ 'cls_lock . 'PW_cls_dn_mv_up ) &
+ ( 'CLS_unlocking =def 'cls_unlock . 'CLS_unlock ) &
+ ( 'PW_fp_pend =def ~ 'fp_off . 'PW_pend_auto_stop_dn ) &
+ ( 'car_driving_locked =def ~ 'door_open . 'car_unlocking ) &
+ ( 'PW_move_dn =def 'pw_auto_mv_dn . 'PW_pend_auto_dn ) &
+ ( 'DAddCLSAL%CLS_unlock =def ~ 'key_pos_lock . 'CLS_locking + ~ 'car_drives . 'car_driving_locking ) &
+ ( 'PW_moved_dn =def 'pw_auto_mv_stop . 'PW_dn ) &
+ ( 'RCK_pw_up =def 'pw_but_up . 'RCK_idle ) &
+ ( 'CLS_lock =def ~ 'key_pos_unlock . 'CLS_unlocking ) &
+ ( 'RCK_sf_pw_up =def 'pw_but_up . 'RCK_sf_on ) &
+ ( 'PW_cls_up =def ~ 'cls_unlock . 'PW_up ) &
+ ( 'PW_fp_stop =def 'pw_auto_mv_stop . 'PW_fp_pend ) &
+ ( 'RCK_locking =def 'rck_lock . 'RCK_idle ) &
+ ( 'CLS_locking =def 'cls_lock . 'CLS_lock ) &
+ ( 'PW_fp_cls_stop =def 'pw_auto_mv_stop . 'PW_fp_cls_pend ) &
+ ( 'PW_pend_auto_stop_up =def 'pw_auto_mv_up . 'PW_pend_auto_up ) &
+ ( 'CLS_unlock =def ~ 'key_pos_lock . 'CLS_locking ) &
+ ( 'PW_moved_up =def 'pw_auto_mv_stop . 'PW_up ) &
+ ( 'DAddAutoPWCLS%PW_pend_auto_up =def ~ 'pw_pos_up . 'PW_moved_up + ~ 'pw_but_dn . 'PW_pend_auto_up_stop + ~ 'fp_on . 'PW_fp_stop + ~ 'cls_lock . 'PW_cls_pend_mv_up ) &
+ ( 'DAddAutoPWCLS%PW_pend =def ~ 'pw_but_dn . 'PW_pend_auto_stop_dn + ~ 'pw_but_up . 'PW_pend_auto_stop_up + ~ 'cls_lock . 'PW_cls_mv_up ) &
+ ( 'PW_pend_auto_up_stop =def 'pw_auto_mv_stop . 'PW_pend ) &
+ ( 'PW_cls_mv_dn_stop =def 'pw_auto_mv_stop . 'PW_cls_mv_up ) &
+ ( 'DAddRCKCAP%DAddRCKCSF%RCK_idle =def ~ 'rck_but_lock . 'RCK_locking + ~ 'pw_rm_up . 'RCK_pw_up + ~ 'pw_rm_dn . 'RCK_pw_dn + ~ 'rck_but_unlock . 'RCK_sf_unlocking ) &
+ ( 'DAddAutoPWCLS%PW_pend_auto_dn =def ~ 'pw_pos_dn . 'PW_moved_dn + ~ 'pw_but_up . 'PW_pend_auto_dn_stop + ~ 'cls_lock . 'PW_cls_mv_dn_stop ) &
+ ( 'RCK_unlocking =def 'rck_unlock . 'RCK_idle ) &
+ ( 'car_driving_locking =def 'car_locked . 'car_driving_locked ) &
+ ( 'PW_move_up =def 'pw_auto_mv_up . 'PW_pend_auto_up ) &
+ ( 'RCK_sf_pw_dn =def 'pw_but_dn . 'RCK_sf_on ) &
+ ( 'RCK_sf_unlock_idle =def ~ 'rck_but_lock . 'RCK_sf_locking ) &
+ ( 'DAddCLSRCK%CLS_unlock =def ~ 'key_pos_lock . 'CLS_locking + ~ 'rck_lock . 'CLS_locking ) &
+ ( 'RCK_idle =def ~ 'rck_but_lock . 'RCK_locking + ~ 'rck_but_unlock . 'RCK_unlocking ) &
+ ( 'RCK_cap_sf_pw_dn =def 'pw_but_dn . 'RCK_sf_unlock_idle ) &
+ ( 'PW_cls_moved_up =def 'pw_auto_mv_stop . 'PW_cls_up ) &
+ ( 'PW_pend_auto_dn_stop =def 'pw_auto_mv_stop . 'PW_pend ) &
+ ( 'PW_pend_auto_stop_dn =def 'pw_auto_mv_dn . 'PW_pend_auto_dn ) &
+ ( 'PW_pend =def ~ 'pw_but_dn . 'PW_pend_auto_stop_dn + ~ 'pw_but_up . 'PW_pend_auto_stop_up ) &
+ ( 'RCK_cap_sf_pw_up =def 'pw_but_up . 'RCK_sf_unlock_idle ) &
+ ( 'RCK_sf_on =def ~ 'rck_but_lock . 'RCK_locking + ~ 'time_rck_sf_elapsed . 'RCK_locking + ~ 'door_open . 'RCK_sf_unlock_idle ) &
+ ( 'RCK_sf_unlocking =def 'rck_unlock . 'RCK_sf_on ) &
+ ( 'RCK_sf_locking =def 'rck_lock . 'RCK_idle ) &
+ ( 'DAddRCKCSF%RCK_idle =def ~ 'rck_but_lock . 'RCK_locking + ~ 'rck_but_unlock . 'RCK_sf_unlocking ) &
+ ( 'PW_up =def ~ 'pw_but_dn . 'PW_move_dn ) &
+ ( 'RCK_pw_dn =def 'pw_but_dn . 'RCK_idle ) &
+ ( 'DAddAutoPWCLS%PW_up =def ~ 'pw_but_dn . 'PW_move_dn + ~ 'cls_lock . 'PW_cls_up ) &
+ ( 'DAddRCKCAPSF%RCK_sf_unlock_idle =def ~ 'rck_but_lock . 'RCK_sf_locking + ~ 'pw_rm_up . 'RCK_cap_sf_pw_up + ~ 'pw_rm_dn . 'RCK_cap_sf_pw_dn ) &
+ ( 'DAddRCKCAP%RCK_idle =def ~ 'rck_but_lock . 'RCK_locking + ~ 'rck_but_unlock . 'RCK_unlocking + ~ 'pw_rm_up . 'RCK_pw_up + ~ 'pw_rm_dn . 'RCK_pw_dn ) &
+ ( 'PW_cls_mv_up =def 'pw_auto_mv_up . 'PW_cls_pend_mv_up ) &
+ ( 'DAddCLSAL%DAddCLSRCK%CLS_unlock =def ~ 'key_pos_lock . 'CLS_locking + ~ 'car_drives . 'car_driving_locking + ~ 'rck_lock . 'CLS_locking ) &
+ ( 'DAddRCKCAPSF%RCK_sf_on =def ~ 'rck_but_lock . 'RCK_locking + ~ 'time_rck_sf_elapsed . 'RCK_locking + ~ 'door_open . 'RCK_sf_unlock_idle + ~ 'pw_rm_dn . 'RCK_sf_pw_dn + ~ 'pw_rm_up . 'RCK_sf_pw_up ) &
+ ( 'PW_fp_cls_pend =def ~ 'cls_unlock . 'PW_fp_pend ) &
+ ( 'PW_cls_pend_mv_up =def ~ 'pw_pos_up . 'PW_cls_moved_up + ~ 'cls_unlock . 'PW_pend_auto_up + ~ 'fp_on . 'PW_fp_cls_stop ) &
+ ( 'car_unlocking =def 'car_unlocked . 'CLS_unlock ) &
+ ( 'DAddAutoPWCLS%PW_fp_pend =def ~ 'fp_off . 'PW_pend_auto_stop_dn + ~ 'cls_lock . 'PW_fp_cls_pend ) &
+ ( 'PW_pend_auto_dn =def ~ 'pw_pos_dn . 'PW_moved_dn + ~ 'pw_but_up . 'PW_pend_auto_dn_stop ) &
+ ( 'DAddRCKCSF%RCK_unlocking =def ( ~ 'nil . 0 | 'nil . 0 ) \ 'nil  ) &
+ ( 'PW_cls_dn_mv_up =def 'pw_auto_mv_up . 'PW_cls_pend_mv_up ) &
+ ( 'Root =def  (  ( 'default . 'PW_up | 'default . 'CLS_unlock )  | 'default . 'RCK_idle )  ) &
+ ( 'DAddCLSRCK%CLS_lock =def ~ 'key_pos_unlock . 'CLS_unlocking + ~ 'rck_unlock . 'CLS_unlocking ) &
+ ( 'PW_dn =def ~ 'pw_but_up . 'PW_move_up ) &
+ ( 'PW_pend_auto_up =def ~ 'pw_pos_up . 'PW_moved_up + ~ 'pw_but_dn . 'PW_pend_auto_up_stop + ~ 'fp_on . 'PW_fp_stop ) .
+
+eq deltaSet = 
+   'DAddAutoPWCLS =ddef ( 'PW_fp_pend , AutomaticPowerWindow /\ CentralLockingSystem , 'DAddAutoPWCLS%PW_fp_pend ) &
+   'DAddCLSRCK =ddef ( 'DAddCLSAL%CLS_unlock , CentralLockingSystem /\ RemoteControlKey , 'DAddCLSAL%DAddCLSRCK%CLS_unlock ) &
+   'DAddCLSRCK =ddef ( 'CLS_lock , CentralLockingSystem /\ RemoteControlKey , 'DAddCLSRCK%CLS_lock ) &
+   'DAddCLSAL =ddef ( 'CLS_unlock , AutomaticLocking , 'DAddCLSAL%CLS_unlock ) &
+   'DAddCLSRCK =ddef ( 'CLS_unlock , CentralLockingSystem /\ RemoteControlKey , 'DAddCLSRCK%CLS_unlock ) &
+   'DAddRCKCSF =ddef ( 'RCK_unlocking , RemoteControlKey /\ SafetyFunction , 'DAddRCKCSF%RCK_unlocking ) &
+   'DAddCLSAL =ddef ( 'DAddCLSRCK%CLS_unlock , AutomaticLocking , 'DAddCLSAL%DAddCLSRCK%CLS_unlock ) &
+   'DAddRCKCSF =ddef ( 'RCK_idle , RemoteControlKey /\ SafetyFunction , 'DAddRCKCSF%RCK_idle ) &
+   'DAddAutoPWCLS =ddef ( 'PW_pend , AutomaticPowerWindow /\ CentralLockingSystem , 'DAddAutoPWCLS%PW_pend ) &
+   'DAddAutoPWCLS =ddef ( 'PW_up , AutomaticPowerWindow /\ CentralLockingSystem , 'DAddAutoPWCLS%PW_up ) &
+   'DAddRCKCSF =ddef ( 'DAddRCKCAP%RCK_idle , RemoteControlKey /\ SafetyFunction , 'DAddRCKCAP%DAddRCKCSF%RCK_idle ) &
+   'DAddAutoPWCLS =ddef ( 'PW_pend_auto_dn , AutomaticPowerWindow /\ CentralLockingSystem , 'DAddAutoPWCLS%PW_pend_auto_dn ) &
+   'DAddAutoPWCLS =ddef ( 'PW_dn , AutomaticPowerWindow /\ CentralLockingSystem , 'DAddAutoPWCLS%PW_dn ) &
+   'DAddAutoPWCLS =ddef ( 'PW_pend_auto_up , AutomaticPowerWindow /\ CentralLockingSystem , 'DAddAutoPWCLS%PW_pend_auto_up ) .
+
+eq Proc = ( ( 'Root \ 'cls_lock \ 'pw_but_dn \ 'rck_lock \ 'cls_unlock \ 'pw_but_up \ 'rck_unlock ) , deltaSet ) .
+
+endm

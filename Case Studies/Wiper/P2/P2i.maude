@@ -1,0 +1,59 @@
+--- Good-Low
+mod Wiper is 
+			inc DeltaCCS-Variant .
+  			inc Dependency-Graph .
+  
+  ops Proc Proc1 Proc2 : -> VProcess .
+  op a : -> Act .
+
+  ops Simple Good Low High : -> Formula .
+  
+  
+  eq fm = True .
+  
+  eq context =  ('PC 	=def ('Dry | 'Off) \ 'noRain \ 'rain \ 'heavyRain ) &
+  				('Dry 	=def ~ 'noRain . 'Dry + 'little . 'Damp + 'heavy . 'Wet) &
+  				('Damp 	=def ~ 'rain . 'Damp + 'heavy . 'Wet + 'non . 'Dry) &
+  				('Wet	=def ~ 'heavyRain . 'Wet + 'little . 'Damp + 'non . 'Dry) &
+  				('Off 	=def 'mOn . 'Man + 'iOn . 'Auto) &
+  				('Man	=def ~ 'perm . 'Man + 'off . 'Off + 'iOn . 'Auto) &
+  				('Auto	=def 'noRain . 'Auto + 'rain . 'Slow + 'heavyRain . 'Fast) &
+  				('Slow	=def ~ 'slowWipe . 'Auto) &
+  				('Fast	=def ~ 'fastWipe . 'Auto) &
+  				('Damp1 =def ~ 'rain . 'Damp' + 'non . 'Dry) &
+  				('Wet1 	=def ( ~ 'nil . 0 | 'nil . 0 ) \ 'nil  )  &
+  				('Dry1	=def ~ 'noRain . 'Dry' + 'little . 'Damp) &
+  				('Dry2	=def ~ 'noRain . 'Dry'' + 'little . 'Damp + 'heavy . 'Damp) &
+  				('Auto1 =def 'noRain . 'Auto + 'rain . 'Slow + 'heavyRain . 'Slow) &
+  				('Fast1 =def ( ~ 'nil . 0 | 'nil . 0 ) \ 'nil  )  .
+  				
+  eq deltaSet = 	'd5 =ddef ('Auto, Low , 'Auto1) & 
+  					'd6 =ddef ('Fast, Low , 'Fast1) .
+ 
+  ---eq Proc = [ (applyrSet deltaSet empty to ( ('Dry | 'Off) \ 'noRain \ 'rain \ 'heavyRain ) ) , deltaSet ] .
+  eq Proc = [ ( 'PC ) , deltaSet ] .
+  eq Proc1 = [ ( ('Dry | 'Auto1 ) \ 'noRain \ 'rain \ 'heavyRain ) , deltaSet ] .
+  eq Proc2 = [ ( ('Dry | 'Fast1 ) \ 'noRain \ 'rain \ 'heavyRain ) , deltaSet ] .
+  
+  eq a = ~ 'fastWipe .					
+  eq DG = dg('PC) .
+endm
+
+---red in Wiper : add deltaSet to DG .
+---rew[10] in Wiper : add deltaSet to DG .
+
+--- check incremental from product P1i
+
+--- e1
+red in mu-calculus : {} 'Proc.VProcess |= Nu X ( [ ''heavy.Act ] << 'a.Act >> tt ) /\ ( [-] X ) .
+red in mu-calculus : {} 'Proc1.VProcess |= Nu X ( [ ''heavy.Act ] << 'a.Act >> tt ) /\ ( [-] X ) .
+red in mu-calculus : {} 'Proc2.VProcess |= Nu X ( [ ''heavy.Act ] << 'a.Act >> tt ) /\ ( [-] X ) .
+
+--- home state
+---red in mu-calculus : {} 'Proc.VProcess |= Nu X ( << ''non.Act >> tt ) /\ ( [-] X ) .
+
+--- deadlock
+---red in mu-calculus : {} 'Proc.VProcess |= Nu X [-]X /\ <-> tt .
+red in mu-calculus : {} 'Proc.VProcess |= Nu X ( <-> tt ) /\ ( [-] X ) .
+red in mu-calculus : {} 'Proc1.VProcess |= Nu X ( <-> tt ) /\ ( [-] X ) .
+red in mu-calculus : {} 'Proc2.VProcess |= Nu X ( <-> tt ) /\ ( [-] X ) .

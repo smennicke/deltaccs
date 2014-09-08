@@ -1,0 +1,18 @@
+mod EXAMPLE is inc DeltaCCS .
+op Proc : -> DeltaCCSProcess .
+
+
+eq context =  
+( 'Phil0 =def 'think . 'Phil0 + ~ 'up0 . ~ 'up1 . 'eat . ~ 'dn0 . ~ 'dn1 . 'Phil0 ) &
+( 'Fork0 =def 'up0 . 'dn0 . 'Fork0 ) &
+( 'Phil1 =def 'think . 'Phil1 + ~ 'up1 . ~ 'up0 . 'eat . ~ 'dn1 . ~ 'dn0 . 'Phil1 ) &
+( 'Fork1 =def 'up1 . 'dn1 . 'Fork1 ) .
+
+eq deltaSet = empty .
+
+eq Proc = ( ( ( ( ( 'Phil0 | 'Fork0 ) | 'Phil1 ) | 'Fork1 ) \ 'up0 \ 'dn0 \ 'up1 \ 'dn1), empty ) .
+
+endm
+
+
+red in mu-calculus : {} {} 'Proc.DeltaCCSProcess |= Nu X [-]X /\ <-># SVA # SVA .

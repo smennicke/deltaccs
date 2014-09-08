@@ -1,0 +1,2 @@
+red in mu-calculus : {} {} 'Proc.DeltaCCSProcess |= Nu X ( [ ( '~_ [ ''pw_pos_up.Act ] ) ++ ( '~_ [ ''pw_pos_dn.Act ] ) ] < ''pw_auto_mv_stop.Act > tt ) /\ ( [-] X ) .
+---red in mu-calculus : {} {} 'Proc.DeltaCCSProcess |= Nu X ( [ 'a.Act ++ 'b.Act ] < ''pw_auto_mv_stop.Act > tt ) /\ ( [-] X ) .
